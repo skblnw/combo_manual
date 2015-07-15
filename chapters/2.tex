@@ -35,69 +35,47 @@ At beginning, you are required to select rolls to install. Of course, tick them 
 \begin{enumerate}
 \item boot,
 \item base, 
-\item Service Pack, 
-\item area51, 
-\item condor, 
 \item ganglia, 
 \item HPC,
-\item java, 
 \item python, 
-\item perl, 
-\item Bio, 
-\item Web Server, 
 \item os,
-\item kvm,
-\item kernek,
+\item kernel,
 \end{enumerate}
 
-\subsection{Basic Configuration}
+\subsection{Network Settings}
 In the this section, pay {\bf attention} to network configuration. If you have never plugged the wires, the default interface is:
 \begin{itemize}
-\item eth2: Private Network
-\item eth3: Public Network
-\end{itemize}
+\item eth2: Private Network: 192.168.1.18: Netmask: 255.255.0.0
+\item eth3: Public Network: 144.214.25.68: Netmask: 255.255.0.0
 \begin{remark}
 Do not choose {\it eth0} or {\it eth1}, or you will suffer a lot afterwards.
 \end{remark}
+\item Gateway: 144.214.2.254: DNS Server: 144.214.5.20
+\begin{remark}
+These settings are according to CityU CSC.
+\end{remark}
+\end{itemize}
 Anyway, make sure every textbox is filled appropriately except longitude and latitude.
 
 \subsection{Disk Partition}
-To better manage our cluster, manual disk partition is required. After entering manual partition interface, do the partition as:
+To better manage our cluster, manual disk partition is required. If it is a reinstallation, delete all the existing partition. Then simply press "add". /dev/sdaN (where N is a number starts from 1) will be created automatically. Maximum number for N is 5, after 5 it will create new devices automatically. However ext4 might have the problem of a maximum volume of 16T, therefore /data and /data2 should be specially created using logical volumes. 
 \paragraph{Partition Setting}
-\begin{tabular}{ r | c | l }
+\begin{tabular}{ | r | c | c | c |}
 	\hline
-		File System & Mounted on & Format ? \\ \hline
-		/dev/sda5 & / & yes \\ \hline
-		/dev/sda1 & /boot & yes \\ \hline
-		/dev/sda3 & /export & yes \\ \hline
-		/dev/mapper/vg\_combo\_LogVol00 & /data / & no \\ \hline
-		/dev/mapper/vg\_combo\_LogVol01 & /data2 / & no \\
+		File System & Mounted on & Size (MB) & Format $?$ \\ \hline
+		 & / & 20000 & yes \\ \hline
+		 & /boot & 500 & yes \\ \hline
+		 & /var & 5000 & yes \\ \hline
+		 & swap & 10000 & yes \\ \hline
+		 & /export & max & yes \\ \hline
+		/dev/mapper/vg\_combo\_LogVol00 & /data & 11T & no \\ \hline
+		/dev/mapper/vg\_combo\_LogVol01 & /data2 & 9T & no \\
 	\hline
 \end{tabular}
 
 \section{Before Connecting Conputer Nodes*}
-This part is very special, because the {\bf torque} is preferred to be installed before connecting computer nodes. The reason is what we use if {\bf Torque Roll}, it will automatically identify nodes only when nodes are added after torque installed. So please jump to {\bf Installing Application} section to install torque first, then come back to continue.
+This part is very special, because the {\bf torque} is preferred to be installed before connecting computer nodes. The reason is what we use is {\bf Torque Roll}, it will automatically identify nodes only when nodes are added after torque installed. 
 
-\section{Connecting Computer Nodes}
-Just mentioned before, frontend is {\it "Caption"} and we need to establish connections among {\it "Caption"} and {\it "Solders"}.
-\begin{enumerate}
-\item Ensure you have installed Torque roll and rebooted,
-\item Cut off Internet, Shutdown all the nodes by your hands,
-\item Open Terminal, run {\tt \$ insert-ethers}, choose {\bf Compute} as type,
-\item boot each node one by one, (take your time, maybe switch on one every 1 min), choose "Network Booting" when prompted,
-\item partition nodes according to: \\
-\begin{tabular}{ r | c | c | l }
-	\hline
-		File System & Mounted on & Size & Format ? \\ \hline
-		/dev/sda2 & / & 100000 & yes \\ \hline
-		/dev/sda1 & swap & 80000 & no \\ \hline
-		/dev/sdb & /tmp & whatever & no \\
-	\hline
-\end{tabular}
-\end{enumerate}
-
-\section{Installing Applications}
-The most challenging mission just starts. In this section, we need to install several applications. We will deal with them one by one.
 \subsection{TORQUE}
 Torque is not packaged in rocks DVD, we need to download torque\footnote{Torque+Maui job queueing system, packaged by HPC Group at University of Tromso, Norway} from \url{ftp://ftp.uit.no/pub/linux/rocks/torque-roll/}.
 \begin{enumerate}
@@ -110,6 +88,52 @@ Torque is not packaged in rocks DVD, we need to download torque\footnote{Torque+
 \begin{remark}
 I have to complain about torque here. The version Rocks Official Website\footnote{http://www.rocksclusters.org/} recommend torque package from {\it HPC Group at University of Tromso, Norway}, which is version 6.0.0. I cannot find any documentation or tutorial of this version. Oh that is terribly annoying. If you did not pay attention to the small-size introduction about Rocks, and Google "torque", you will find another torque...
 \end{remark}
+
+We are about to connect computer nodes, if you do not want to create partitions one by one, here's a trick! You might create a XML file for nodes to read when creating their partitions:
+\begin{itemize}
+\item {\tt \$ cd /export/rocks/install/site-profiles/6.2/nodes/}
+\item {\tt \$ cp skeleton.xml replace-partition.xml}
+\item {\tt \$ vi replace-partition.xml}
+\end{itemize}
+Then insert the following lines in-between <pre> and </pre>:
+\begin{lstlisting}[basicstyle=\ttfamily\scriptsize,columns=fullflexible]
+<pre>
+echo "clearpart --all --initlabel --drivers=sda
+part / --size 100000 --ondisk sda
+part swap --size 80000 --ondisk sda
+part /mydata --size 1 --grow --ondisk sda" > /tmp/user_partition_info
+</pre>
+\end{lstlisting}
+Remember to execute 
+\begin{itemize}
+\item {\tt \$ rocks create distro}
+\end{itemize}
+in order to make it work.
+
+\section{Connecting Computer Nodes}
+Just mentioned before, frontend is {\it "Caption"} and we need to establish connections among {\it "Caption"} and {\it "Solders"}.
+\begin{enumerate}
+\item Ensure you have installed Torque roll and rebooted,
+\item Cut off Internet, Shutdown all the nodes by your hands,
+\begin{remark}
+The reason for cutting off internet is that if someone knock on Combo during insert-ether, Combo will recognise it as a node which is obviously not preferable. 
+\end{remark}
+\item Open Terminal, run {\tt \$ insert-ethers}, choose {\bf Compute} as type,
+\item boot each node one by one, (take your time, maybe switch on one every 1 min), choose "Network Booting" when prompted,
+\item partition nodes according to: \\
+\begin{tabular}{ r | c | c | l }
+	\hline
+		File System & Mounted on & Size & Format ? \\ \hline
+		/dev/sda2 & / & 100000 & yes \\ \hline
+		/dev/sda1 & swap & 80000 & yes \\ \hline
+		/dev/sdb & /mydata & whatever & yes \\
+	\hline
+\end{tabular}
+\end{enumerate}
+
+\section{Installing Applications}
+The most challenging mission just starts. In this section, we need to install several applications. We will deal with them one by one.
+
 \subsection{NVIDIA CUDA Toolkit}
 Install CUDA is relatively easy, first install NVIDIA driver, then CUDA Toolkit. CUDA Toolkit could be download from \url{https://developer.nvidia.com/cuda-downloads}, the installation guide on official website(url{http://docs.nvidia.com/cuda/cuda-getting-started-guide-for-linux/index.html}), here only list some interesting points: (Applied to NVIDIA CUDA Getting Started Guide for Linux, DU-05347-001\_v5.5, July 19, 2013)
 \begin{enumerate}
@@ -186,6 +210,46 @@ also, run {\tt \$ source $\sim$/.bashrc} to make it work.
 and till now, the {\bf $\sim$/.bashrc} file should look like this:
 \lstinputlisting[basicstyle=\ttfamily\scriptsize,columns=fullflexible]{./code/bashrc_after_openmpi}
 \end{enumerate}
+\subsection{NAMD}
+(Added on 12 July 2015 when we are doing the reinstallation of Combo after an unknown attack causing the whole thing to crash) \\
+Generally I followed the release note of NAMD (Here\footnote{http://www.ks.uiuc.edu/Research/namd/2.10/notes.html} for NAMD 2.10) and I do recommend all of you to do so. Do not bother to understand every word of it for the first glance, but do bear in mind that they are one of the criteria for your understanding of UIUC softwares. In the following section, I would try to combine what they tell us about a MPI (probably with InfiniBand) plus CUDA version of NAMD 2.10 so you do not have to scroll up and down the page. 
+\begin{itemize}
+\item Firstly of cause, download the correct tar ball (2015/07/15: NAMD\_2.10\_Source.tar) and send it to Combo using your own method (e.g. FileZilla or scp).
+\item tar xvf NAMD\_2.10\_Source.tar.gz
+\begin{remark}
+I am not sure why the release note suggests xzf options and also the file is end with gz extension while I can only untar the file using xf options showing that the file is NOT zipped. Anyway, it does not matter much. 
+\end{remark}
+\item cd NAMD\_2.10\_Source
+\item tar xvf charm-6.6.1.tar
+\item cd charm-6.6.1
+\item env MPICXX=mpicxx ./build charm++ mpi-linux-x86\_64 --with-production
+\begin{remark}
+In fact you can simply type ./build to enter an interactive mode choosing compilation options one by one and I DO recommend you to try that. 
+\end{remark}
+\item cd mpi-linux-x86\_64/tests/charm++/megatest
+\item make pgm
+\item mpirun -n 4 ./pgm   (run as any other MPI program on your cluster)
+\item cd ../../../../..   (go to the very original NAMD\_2.10\_Source directory)
+\begin{remark}
+I do recommend you to copy the following lines into a bash script instead of copying them to the console one by one.
+\end{remark}
+\item wget http://www.ks.uiuc.edu/Research/namd/libraries/fftw-linux-x86\_64.tar.gz 
+\item tar xzf fftw-linux-x86\_64.tar.gz mv linux-x86\_64 fftw 
+\item wget http://www.ks.uiuc.edu/Research/namd/libraries/tcl8.5.9-linux-x86\_64.tar.gz 
+\item wget http://www.ks.uiuc.edu/Research/namd/libraries/tcl8.5.9-linux-x86\_64-threaded.tar.gz 
+\item tar xzf tcl8.5.9-linux-x86\_64.tar.gz 
+\item tar xzf tcl8.5.9-linux-x86\_64-threaded.tar.gz 
+\item mv tcl8.5.9-linux-x86\_64 tcl 
+\item mv tcl8.5.9-linux-x86\_64-threaded tcl-threaded
+\item ./config Linux-x86\_64-g++ --charm-arch mpi-linux-x86\_64 --with-cuda --cuda-prefix /share/apps/cuda
+\begin{remark}
+What follows the --charm-arch is the name of your charm build directory.
+\end{remark}
+\item cd Linux-x86\_64-g++
+\item gmake -j32
+\item ./namd2 src/alanin
+\item mpirun -n 4 ./namd2 src/alanin
+\end{itemize}
 \subsection{FFTW and GROMACS}
 Installing FFTW and GROMACS should be difficult if you have not ever experienced. Don't worry, our Kevin has worked out the right way to install it and you, just need to do copy and paste work. :-)
 \begin{remark}

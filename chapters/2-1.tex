@@ -1,0 +1,40 @@
+\subsection{NAMD}
+(Added on 12 July 2015 when we are doing the reinstallation of Combo after an unknown attack causing the whole thing to crash) \\
+Generally I followed the release note of NAMD (Here\footnote{http://www.ks.uiuc.edu/Research/namd/2.10/notes.html} for NAMD 2.10) and I do recommend all of you to do so. Do not bother to understand every word of it for the first glance, but do bear in mind that they are one of the criteria for your understanding of UIUC softwares. In the following section, I would try to combine what they tell us about a MPI (probably with InfiniBand) plus CUDA version of NAMD 2.10 so you do not have to scroll up and down the page. 
+\begin{itemize}
+\item Firstly of cause, download the correct tar ball (2015/07/15: NAMD\_2.10\_Source.tar) and send it to Combo using your own method (e.g. FileZilla or scp).
+\item tar xvf NAMD\_2.10\_Source.tar.gz
+\begin{remark}
+I am not sure why the release note suggests xzf options and also the file is end with gz extension while I can only untar the file using xf options showing that the file is NOT zipped. Anyway, it does not matter much. 
+\end{remark}
+\item cd NAMD\_2.10\_Source
+\item tar xvf charm-6.6.1.tar
+\item cd charm-6.6.1
+\item env MPICXX=mpicxx ./build charm++ mpi-linux-x86\_64 --with-production
+\begin{remark}
+In fact you can simply type ./build to enter an interactive mode choosing compilation options one by one and I DO recommend you to try that. 
+\end{remark}
+\item cd mpi-linux-x86\_64/tests/charm++/megatest
+\item make pgm
+\item mpirun -n 4 ./pgm   (run as any other MPI program on your cluster)
+\item cd ../../../../..   (go to the very original NAMD\_2.10\_Source directory)
+\begin{remark}
+I do recommend you to copy the following lines into a bash script instead of copying them to the console one by one.
+\end{remark}
+\item wget http://www.ks.uiuc.edu/Research/namd/libraries/fftw-linux-x86\_64.tar.gz 
+\item tar xzf fftw-linux-x86\_64.tar.gz mv linux-x86\_64 fftw 
+\item wget http://www.ks.uiuc.edu/Research/namd/libraries/tcl8.5.9-linux-x86\_64.tar.gz 
+\item wget http://www.ks.uiuc.edu/Research/namd/libraries/tcl8.5.9-linux-x86\_64-threaded.tar.gz 
+\item tar xzf tcl8.5.9-linux-x86\_64.tar.gz 
+\item tar xzf tcl8.5.9-linux-x86\_64-threaded.tar.gz 
+\item mv tcl8.5.9-linux-x86\_64 tcl 
+\item mv tcl8.5.9-linux-x86\_64-threaded tcl-threaded
+\item ./config Linux-x86\_64-g++ --charm-arch mpi-linux-x86\_64 --with-cuda --cuda-prefix /share/apps/cuda
+\begin{remark}
+What follows the --charm-arch is the name of your charm build directory.
+\end{remark}
+\item cd Linux-x86\_64-g++
+\item gmake -j32
+\item ./namd2 src/alanin
+\item mpirun -n 4 ./namd2 src/alanin
+\end{itemize}
