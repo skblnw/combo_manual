@@ -1,0 +1,18 @@
+#for Intel
+source /share/apps/intel/bin/compilervars.sh intel64
+#GNU compiler
+export PATH=/share/apps/intel/bin:$PATH
+export INCLUDE=/share/apps/intel/include:$PATH
+export LD_LIBRARY_PATH=/share/apps/intel:$PATH
+export CC=gcc
+export CFLAGS=-O3
+export CXX=g++
+export CXXFLAGS=-O3
+export FC=gfortran
+export F77=gfortran
+export F90=gfortran
+export FFLAGS=-O3
+# Settings for OpenMPI
+export PATH=/share/apps/openmpi-1.6.5/bin:$PATH
+export INCLUDE=/share/apps/openmpi-1.6.5/include:$INCLUDE
+export LD_LIBRARY_PATH=/share/apps/openmpi-1.6.5/lib:$LD_LIBRARY_PATH

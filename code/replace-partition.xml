@@ -1,0 +1,38 @@
+<?xml version="1.0" standalone="no"?>
+<kickstart>
+<description>
+	A skeleton XML node file. This file is a template and is intended
+	as an example of how to customize your Rocks cluster. Kickstart XML
+	nodes such as this describe packages and "post installation" shell
+	scripts for your cluster.
+
+	XML files in the site-nodes/ directory should be named either
+	"extend-[name].xml" or "replace-[name].xml", where [name] is
+	the name of an existing xml node.
+
+	If your node is prefixed with replace, its instructions will be used
+	instead of the official node's. If it is named extend, its directives
+	will be concatenated to the end of the official node.
+
+</description>
+<changelog>
+</changelog>
+<main>
+</main>
+
+<pre>
+	<!-- partitioning commands go here -->
+
+echo "clearpart --all --initlabel --drives=sda,sdb
+part / --size 80000 --grow --ondisk sda
+part swap --size 100000 --ondisk sda
+part /tmp --size 800 --grow --ondisk sdb " > /tmp/user_partition_info
+echo "rocks manual" > /tmp/user_partition_info
+
+</pre>
+<post>
+
+	<eval shell="python">
+	</eval>
+</post>
+</kickstart>

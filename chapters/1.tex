@@ -1,0 +1,75 @@
+\section{Terminology}\index{Terminology}
+
+\section{Name}
+\subsection{Hardware}
+\begin{description}
+\item[Frontend] a computer, also called "server node" to connect and control the computer nodes.
+\item[Computer Node] a computer, connected and controlled by frontend, and can do process jobs.
+\end{description}
+\subsection{Non-Hardware}
+\begin{description}
+\item[Combo] Combo is a nick name of our cluster.
+\item[Computer cluster] A computer cluster consists of a set of loosely connected or tightly connected computers that work together so that in many respects they can be viewed as a single system.\footnote{From WikiPedia - Item:Computer cluster, http://en.wikipedia.org/wiki/Cluster\_(computing), retrived on Mar 21, 2014}
+\item[MPI] Message Passing Interface (MPI) is a standardized and portable message-passing system designed by a group of researchers from academia and industry to function on a wide variety of parallel computers. The standard defines the syntax and semantics of a core of library routines useful to a wide range of users writing portable message-passing programs in Fortran or the C programming language. There are several well-tested and efficient implementations of MPI, including some that are free or in the public domain. These fostered the development of a parallel software industry, and there encouraged development of portable and scalable large-scale parallel applications.\footnote{From WikiPedia - Item:Message Passing Interface, http://en.wikipedia.org/wiki/Message\_Passing\_Interface, retrived on Mar 21, 2014}
+\item[Parallel computing] Parallel computing is a form of computation in which many calculations are carried out simultaneously, operating on the principle that large problems can often be divided into smaller ones, which are then solved concurrently ("in parallel"). There are several different forms of parallel computing: bit-level, instruction level, data, and task parallelism. Parallelism has been employed for many years, mainly in high-performance computing, but interest in it has grown lately due to the physical constraints preventing frequency scaling. As power consumption (and consequently heat generation) by computers has become a concern in recent years, parallel computing has become the dominant paradigm in computer architecture, mainly in the form of multi-core processors.\footnote{From WikiPedia - Item:Parallel computing, http://en.wikipedia.org/wiki/Parallel\_computing, retrived on Mar 21, 2014}
+\item[Rocks] Rocks is an open-source Linux cluster distribution that enables end users to easily build computational clusters, grid endpoints and visualization tiled-display walls.\footnote{Rocks Official Website, http://www.rocksclusters.org/wordpress/?page\_id=57, retrived on Mar 21, 2014} Rocks was initially based on the Red Hat Linux distribution, however modern versions of Rocks were based on CentOS, with a modified Anaconda installer that simplifies mass installation onto many computers. \footnote{From WikiPedia - Item:Rocks Cluster Distribution, http://en.wikipedia.org/wiki/Rocks\_Cluster\_Distribution, retrived on Mar 21, 2014}
+\end{description}
+
+\section{Notation}
+\subsection{Code}
+In this manual, there are a lot of code example, to make it clear to distinguish code from others, some explaination are needed:
+\paragraph{Command Line}
+\begin{enumerate}
+\item Each command will start with "{\tt \$}", the font is typewriter font, with various font sizes.
+\item If a piece of command is too long to place in one line, a "{\tt \textbackslash}" is used to indicate ignoring a linebreak.
+\item try not to directly copy from this manual and paste in terminal, for sometiomes "{\tt $\sim$}" and "{\tt \_}" may looks good in manual, but inappropriate in ternimal, pay attention when you paste a block of codes.
+\end{enumerate}
+
+
+
+
+\section{Hardware}\index{Hardware}
+
+Introduction about hardware of combo.
+
+\subsection{Processor}\index{Processor}
+
+\begin{itemize}
+\item $17 \times 16$ CPUs
+\item $17 \times 256$ GPUs
+\end{itemize}
+
+\subsection{Communication}\index{Communication}
+
+\begin{itemize}
+\item $1 \times HP 2910-48G Switch $
+\item $1 \times Vo.. Switch $
+\end{itemize}
+
+%------------------------------------------------
+
+\section{Structure}\index{Structure}
+
+To quickly understand how the combo works, we can image there are a team of army consisting of 16 solders as well as a captain. 
+
+%------------------------------------------------
+
+\section{Software}\index{Software}
+
+Here list the softwares installed on Combo.
+
+\subsection{Operation System}\index{Operation System}
+
+The operating system is Rocks\footnote{http://rocksclusters.org}, Currect version is ver.6.1.
+
+\subsection{Compiler}\index{Compiler}
+
+\begin{itemize}
+\item GNU Compiler (gcc, g++, fortran, JAVA...)
+\end{itemize}
+
+\subsection{Development Tools}\index{Development Tools}
+
+\begin{itemize}
+\item NVIDIA CUDA Toolkit\footnote{https://developer.nvidia.com/cuda-toolkit}
+\end{itemize}

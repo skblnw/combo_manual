@@ -1,0 +1,232 @@
+To install the combo, basically, the following steps need to follow:
+
+\begin{enumerate}
+\item Install the Rocks in the frontend
+\item Connect the computer nodes to frontend
+\item Install the applications
+\end{enumerate}
+
+Then, the details are as followed:
+
+\section{Installing Operating System}\index{Installing Operating System}
+
+Installing operating system on frontend is as easy as you install Windows on your PC, once you know how to config right. \\
+And what I am exactly doing here, is to let you know, how to do it right:
+\begin{enumerate}
+\item Download the .ISO and burn into the DVD
+\item Put DVD into optical driver and follow the prompt to do one step after another.
+\item done
+\end{enumerate}
+
+\subsection{Download .ISO file and Boot from DVD}
+The file can be download from \url{http://www.rocksclusters.org/wordpress/?page_id=80 }, the architacture is x86\_64 and the jumpo DVD is preferred. 
+
+\begin{remark}
+The installation guide is availible on \url{http://www.rocksclusters.org/wordpress/?page_id=4}, to avoid iterance, only those with special attention are listed.
+\end{remark}
+
+\subsection{Selecting Rolls}
+At beginning, you are required to select rolls to install. Of course, tick them all is a safe choice, anyway, I will list the rolls recommended to be installed on frontend:
+\begin{remark}
+\begin{description}
+\item[Roll] In Rocks, a roll can be regarded as a package, The "Rolls" extend the system by integrating seamlessly and automatically into the management and packaging mechanisms used by base software, greatly simplifying installation and configuration of large numbers of computers.\footnote{Breaking News - Operating Systems \& Middleware: SDSC Enhances Rocks Cluster Management Toolkit, http://web.archive.org/web/20070927031015/http://www.gridtoday.com/04/0216/102698.html, retrived on Mar 19, 2014}.
+\end{description}
+\end{remark}
+\begin{enumerate}
+\item boot,
+\item base, 
+\item Service Pack, 
+\item area51, 
+\item condor, 
+\item ganglia, 
+\item HPC,
+\item java, 
+\item python, 
+\item perl, 
+\item Bio, 
+\item Web Server, 
+\item os,
+\item kvm,
+\item kernek,
+\end{enumerate}
+
+\subsection{Basic Configuration}
+In the this section, pay {\bf attention} to network configuration. If you have never plugged the wires, the default interface is:
+\begin{itemize}
+\item eth2: Private Network
+\item eth3: Public Network
+\end{itemize}
+\begin{remark}
+Do not choose {\it eth0} or {\it eth1}, or you will suffer a lot afterwards.
+\end{remark}
+Anyway, make sure every textbox is filled appropriately except longitude and latitude.
+
+\subsection{Disk Partition}
+To better manage our cluster, manual disk partition is required. After entering manual partition interface, do the partition as:
+\paragraph{Partition Setting}
+\begin{tabular}{ r | c | l }
+	\hline
+		File System & Mounted on & Format ? \\ \hline
+		/dev/sda5 & / & yes \\ \hline
+		/dev/sda1 & /boot & yes \\ \hline
+		/dev/sda3 & /export & yes \\ \hline
+		/dev/mapper/vg\_combo\_LogVol00 & /data / & no \\ \hline
+		/dev/mapper/vg\_combo\_LogVol01 & /data2 / & no \\
+	\hline
+\end{tabular}
+
+\section{Before Connecting Conputer Nodes*}
+This part is very special, because the {\bf torque} is preferred to be installed before connecting computer nodes. The reason is what we use if {\bf Torque Roll}, it will automatically identify nodes only when nodes are added after torque installed. So please jump to {\bf Installing Application} section to install torque first, then come back to continue.
+
+\section{Connecting Computer Nodes}
+Just mentioned before, frontend is {\it "Caption"} and we need to establish connections among {\it "Caption"} and {\it "Solders"}.
+\begin{enumerate}
+\item Ensure you have installed Torque roll and rebooted,
+\item Cut off Internet, Shutdown all the nodes by your hands,
+\item Open Terminal, run {\tt \$ insert-ethers}, choose {\bf Compute} as type,
+\item boot each node one by one, (take your time, maybe switch on one every 1 min), choose "Network Booting" when prompted,
+\item partition nodes according to: \\
+\begin{tabular}{ r | c | c | l }
+	\hline
+		File System & Mounted on & Size & Format ? \\ \hline
+		/dev/sda2 & / & 100000 & yes \\ \hline
+		/dev/sda1 & swap & 80000 & no \\ \hline
+		/dev/sdb & /tmp & whatever & no \\
+	\hline
+\end{tabular}
+\end{enumerate}
+
+\section{Installing Applications}
+The most challenging mission just starts. In this section, we need to install several applications. We will deal with them one by one.
+\subsection{TORQUE}
+Torque is not packaged in rocks DVD, we need to download torque\footnote{Torque+Maui job queueing system, packaged by HPC Group at University of Tromso, Norway} from \url{ftp://ftp.uit.no/pub/linux/rocks/torque-roll/}.
+\begin{enumerate}
+\item under {\tt /export/rocks/install }(ensure you are there), run \\ {\tt \$ rocks add roll /root/Desktop/torque-6.0.0-1.x86\_64.disk1.iso } (differ if the ISO file differs),
+\item {\tt \$ rocks enable roll torque },
+\item {\tt \$ rocks create distro }(make sure you are really in {\tt /export/rocks/install}, for this step is to create a Rocks distribution, which is used to install Rocks nodes with torque.)
+\item {\tt \$ rocks run roll torque | sh }(run the torque roll),
+\item {\tt \$ reboot }(after reboot, you can use {\tt \$ pbsnodes -a} to see whether it is running or not)
+\end{enumerate}
+\begin{remark}
+I have to complain about torque here. The version Rocks Official Website\footnote{http://www.rocksclusters.org/} recommend torque package from {\it HPC Group at University of Tromso, Norway}, which is version 6.0.0. I cannot find any documentation or tutorial of this version. Oh that is terribly annoying. If you did not pay attention to the small-size introduction about Rocks, and Google "torque", you will find another torque...
+\end{remark}
+\subsection{NVIDIA CUDA Toolkit}
+Install CUDA is relatively easy, first install NVIDIA driver, then CUDA Toolkit. CUDA Toolkit could be download from \url{https://developer.nvidia.com/cuda-downloads}, the installation guide on official website(url{http://docs.nvidia.com/cuda/cuda-getting-started-guide-for-linux/index.html}), here only list some interesting points: (Applied to NVIDIA CUDA Getting Started Guide for Linux, DU-05347-001\_v5.5, July 19, 2013)
+\begin{enumerate}
+\item {\tt \$ sh cuda-linux64-rel-5.5.22-16488124.run -extract=/share/apps/cuda-install }
+\item {\tt \$ sudo sh cuda-linux64-rel-5.5.22-16488124.run -prefix=/share/apps/cuda }
+\item add folowing code to $\sim$/.bashrc:
+\begin{lstlisting}[basicstyle=\ttfamily\scriptsize,columns=fullflexible]
+# Setting for CUDA
+export PATH=/share/apps/cuda/bin:$PATH
+export LD_LIBRARY_PATH=/share/apps/cuda/lib64:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=/share/apps/cuda/lib:$LD_LIBRARY_PATH
+\end{lstlisting}
+\begin{remark}
+Here is a trick to quickly sync the .bashrc to all node, use the code in frontend:
+\lstinputlisting[basicstyle=\ttfamily\scriptsize,columns=fullflexible,breaklines=true,]{./code/sync_bashrc}
+\end{remark}
+\item {\tt \$ source $\sim$/.bashrc } to update environment variables, and do this to each node.
+\item Next, you need to install NVIDIA driver to each node. on each node, run \\ 
+{\tt \$ /share/apps/cuda/NVIDIA-Linux-x86\_64-319.37.run } \\
+on each node, follow prompt.
+\end{enumerate}
+\begin{itemize}
+\item To test whether CUDA is set up, do the following test steps(I found the test method on the official guide is somehow incorrect, here is the apprepriate method):
+\begin{enumerate}
+\item run {\tt \$ cuda-install-samples-5.5.sh $\sim$} in CUDA installation directory,
+\item {\tt \$ cd $\sim$/NVIDIA\_CUDA-5.5\_Samples/1\_Utilities/deviceQuery/},
+\item {\tt \$ make},
+\item {\tt \$ ./deviceQuery},
+\end{enumerate}
+You will see "{\tt Result = PASS}" at the end of terminal window if CUDA is set up right.
+\end{itemize}
+\subsection{Intel Parallel Studio}
+Intel Parallel Studio is not a free software, to use it legally and without cost, we need to register for non-commercial version(\url{http://software.intel.com/en-us/non-commercial-software-development}).
+\begin{itemize}
+\item download the {\bf parallel\_studio\_xe\_2013\_sp1\_update1.tgz}, place it somewhere, untar it using {\tt \$ tar -xzvf parallel\_studio\_xe\_2013\_sp1\_update1.tgz}.
+\item You can either choose to run install\_GUI.sh or install.sh program under uncompressed directory, follow prompt.
+\item When there is {\bf Custom} or {\bf Advanced} option, choose them.
+\item When prompted to define the installation location, use {\tt /share/apps/} as target directory.
+\item x86 option can be ticked can also be unticked. Ignore the warning at the end if you did not tick to install x86 compilers. 
+\end{itemize}
+\begin{remark}
+Remember to put the following codes into $\sim$/.bashrc:
+\begin{lstlisting}[basicstyle=\ttfamily\scriptsize,columns=fullflexible]
+#for Interl mkl
+source /share/apps/intel/mkl/bin/mklvars.sh intel64
+\end{lstlisting}
+\end{remark}
+\subsection{OpenMPI}
+I followed this blog\footnote{Shane Tarleton, Install OpenMPI with GNU Compilers, 
+http://www.shanetarleton.com/install-openmpi-with-gnu-compilers} to install OpenMPI. Maybe someday this blog disappears, then you cannot find it, in case, I will lead you through it. 
+\begin{enumerate}
+\item I found till now, we do not have {\bf g++} compiler installed, use {\tt \$ yum install gcc-c++} to install {\bf g++} compiler first.
+\item copy the following code to {\bf $\sim$/.bashrc} if they are not there:
+\lstinputlisting[basicstyle=\ttfamily\scriptsize,columns=fullflexible]{./code/bashrc_before_openmpi}
+\item run {\tt \$ source $\sim$/.bashrc} to make bashrc file work.
+\item download OpenMPI from \url{http://www.open-mpi.org/}, and place into {\bf /share/apps/}
+\item then create 2 folders in {\bf /share/apps/}:
+\begin{lstlisting}[basicstyle=\ttfamily\scriptsize,columns=fullflexible]
+cd /share/apps
+mkdir openmpi-install
+mkdir openmpi-1.6.5
+\end{lstlisting}
+\item run {\tt \$ tar -C openmpi-install -xf openmpi-1.6.5.tar.gz} to uncompress it into {\bf openmpi-install folder}, then {\tt cd} into the folder.
+\item run {\tt \$ ./configure --prefix=/share/apps/openmpi-1.6.5} to do install configure, 
+\item then run {\tt \$ make all install} to install it.
+\item add folowing code to {\bf $\sim$/.bashrc}:
+\begin{lstlisting}[basicstyle=\ttfamily\scriptsize,columns=fullflexible]
+# Settings for OpenMPI
+export PATH=/share/apps/openmpi-1.6.5/bin:$PATH
+export INCLUDE=/share/apps/openmpi-1.6.5/include:$INCLUDE
+export LD_LIBRARY_PATH=/share/apps/openmpi-1.6.5/lib:$LD_LIBRARY_PATH
+\end{lstlisting}
+also, run {\tt \$ source $\sim$/.bashrc} to make it work.
+and till now, the {\bf $\sim$/.bashrc} file should look like this:
+\lstinputlisting[basicstyle=\ttfamily\scriptsize,columns=fullflexible]{./code/bashrc_after_openmpi}
+\end{enumerate}
+\subsection{FFTW and GROMACS}
+Installing FFTW and GROMACS should be difficult if you have not ever experienced. Don't worry, our Kevin has worked out the right way to install it and you, just need to do copy and paste work. :-)
+\begin{remark}
+I still want to make sure again you have got {\bf g++} installed. if not, run {\tt \$ yum install gcc-c++}(if installed, you can still run it to make sure).
+\end{remark}
+\subsubsection{FFTW}
+\begin{enumerate}
+\item Download FFTW from \url{http://www.fftw.org/download.html}, untar it and enter the directory. 
+\item run {\tt\scriptsize \$ ./configure MPICC=mpicc –-enable-shared –-enable-mpi -–prefix=/share/apps/fftw3 } to configure installation.
+\item {\tt \$ make},
+\item {\tt \$ make install}.
+\end{enumerate}
+\subsubsection{GROMACS}
+\begin{enumerate}
+\item You need {\bf CMAKE } to finish this installation, download from \url{http://www.cmake.org/cmake/resources/software.html} and install it according to its online guide.
+\item Download latest GROMACS from \url{http://www.gromacs.org/Downloads}, untar it and enter the directory.
+\item run {\tt \$ mkdir build} to create a folder to store build files,
+\item {\tt \$ cd build},
+\item 
+\begin{lstlisting}[basicstyle=\ttfamily\scriptsize,columns=fullflexible]
+$ CMAKE_PREFIX_PATH=/share/apps/fftw3/:/share/apps/openmpi-1.6.5/ cmake ..\
+-DGMX_DOUBLE=ON -DCMAKE_INSTALL_PREFIX=/share/apps/gromacs -DGMX_MPI=ON
+\end{lstlisting}
+\begin{remark}
+The "{\tt \textbackslash}" at the end of the first line means ignore line break afterwards, this is is one-line command;
+also, the {\tt /share/apps/openmpi-1.6.5/} and {\tt /share/apps/fftw3/} may not be accurate for the versions you install may differ from those I did.
+\end{remark}
+\item {\tt \$ make},
+\item {\tt \$ make install}.
+\end{enumerate}
+Don't forget to add the following code to {\bf $\sim$/.bashrc} file:
+\begin{lstlisting}[basicstyle=\ttfamily\scriptsize,columns=fullflexible]
+#for GROMACS
+source /share/apps/gromacs/bin/GMXRC.bash
+\end{lstlisting}
+also, run {\tt \$ source $\sim$/.bashrc} and sync to each node to make it work. 
+\section{Post Configuration}
+\subsection{Locale Setting}
+Basically, every time you login into SSH, it will give you a warning: \\ 
+{\tt warning: setlocale: LC\_CTYPE: cannot change locale (UTF-8) } \\
+fixxing it could be very easy, open {\bf /etc/environment } and add this line to it:
+\begin{lstlisting}
+LC_ALL=C
+\end{lstlisting}
